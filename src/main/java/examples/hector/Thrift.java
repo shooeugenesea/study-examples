@@ -135,7 +135,7 @@ public class Thrift {
         for ( String rowKey: rowKeys ) {
             updater.addKey(rowKey);
             for ( int i = 0; i < 3; i++ ) {
-                updater.setString(rowKey + "_column_" + i, "test" + i);
+                updater.setString(rowKey + "_column_" + i, "測試" + i);
             }
         }
         template.update(updater);
@@ -148,7 +148,7 @@ public class Thrift {
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
         ColumnFamilyUpdater<String, String> updater = template.createUpdater(rowKey);
         for ( int i = 0; i < 3; i++ ) {
-            updater.setString("test" + i, "test" + i);
+            updater.setString("測試" + i, "測試" + i);
         }
         template.update(updater);
         return rowKey;
