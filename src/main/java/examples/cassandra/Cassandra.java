@@ -1,37 +1,36 @@
-package examples.hector.cql.command;
+package examples.cassandra;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
 
-public class Cassandra {
+import examples.windows.NetStat;
+import examples.windows.TaskKill;
 
+public class Cassandra implements Closeable {
+
+    private String executablePath;
     private Process process;
     
-    private Cassandra(String executablePath) throws IOException {
-        String path = Paths.get(executablePath, "cassandra.bat").toFile().getAbsolutePath();
-        System.out.println("execute: " + path);
-        this.process = startProcess(path);
+    public Cassandra(String executablePath) {
+        this.executablePath = Paths.get(executablePath).toFile().getAbsolutePath();
     }
     
-    public static Cassandra start() throws IOException {
-        return new Cassandra("apache-cassandra-1.2.19");
+    public void start() throws IOException {
+        System.out.println("start cassandra. path: " + executablePath);
+        this.process = startProcess(executablePath);        
     }
- 
+    
     public void stop() {
         if (process != null) {
             process.destroy();
         }
-    }
-    
-    public static void main(String[] params) throws IOException {
-        Cassandra.start();
-        try {
-            TimeUnit.HOURS.sleep(1);
-        } catch (InterruptedException e) {
+        NetStat netstat = NetStat.port(9160);
+        if (netstat != null) {
+            TaskKill.pid(netstat.getPid());
         }
     }
     
@@ -75,6 +74,11 @@ public class Cassandra {
                 }
             }
         }.start();
+    }
+
+    @Override
+    public void close() throws IOException {
+        stop();
     }
     
 }
