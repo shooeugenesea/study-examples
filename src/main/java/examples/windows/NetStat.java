@@ -55,7 +55,6 @@ public class NetStat {
     }
     
     /**
-     *   協定       本機位址                       外部位址                   狀態                              PID
      *   TCP 0.0.0.0:135 0.0.0.0:0  LISTENING  972
      * */
     public NetStat(String[] winNetStatResult) {
