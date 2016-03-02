@@ -35,16 +35,16 @@ public class CassandraTestSupport {
     @Before
     public void before() throws Exception {
         cassandra.start();
-        System.out.println("wait 10 seconds");
-        TimeUnit.SECONDS.sleep(10);
+        System.out.println("wait 30 seconds");
+        TimeUnit.SECONDS.sleep(30);
         assertCassandraStarted();
     }
 
     @After
     public void after() throws Exception {
         cassandra.stop();
-        System.out.println("wait 10 seconds");
-        TimeUnit.SECONDS.sleep(10);
+        System.out.println("wait 30 seconds");
+        TimeUnit.SECONDS.sleep(30);
         assertCassandraStopped();
     }
     
@@ -53,7 +53,8 @@ public class CassandraTestSupport {
             @Override
             public FileVisitResult preVisitDirectory(Path srcDir, BasicFileAttributes attrs) throws IOException {
                 Path targetDir = target.resolve(source.relativize(srcDir));
-                Files.createDirectory(targetDir);
+                System.out.println("create " + targetDir.toAbsolutePath());
+                Files.createDirectories(targetDir);
                 return super.preVisitDirectory(srcDir, attrs);
             }
             @Override
