@@ -27,11 +27,11 @@ public class ThriftTemplate {
     
     final Cluster cluster;
     
-    private ThriftTemplate() {
+    public ThriftTemplate() {
         this.cluster = createCluster();
     }
     
-    private void deleteRows(String ksName, String cfName, List<String> rowKeys) {
+    public void deleteRows(String ksName, String cfName, List<String> rowKeys) {
         Keyspace ksp = HFactory.createKeyspace(ksName, cluster);
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
         Mutator<String> m = template.createMutator();
@@ -43,7 +43,7 @@ public class ThriftTemplate {
         }
     }
     
-    private Map<String, Map<String, String>> readRows(String ksName, String cfName, List<String> rowKeys) {
+    public Map<String, Map<String, String>> readRows(String ksName, String cfName, List<String> rowKeys) {
         Keyspace ksp = HFactory.createKeyspace(ksName, cluster);
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
         ColumnFamilyResult<String, String> results = template.queryColumns(rowKeys);
@@ -63,7 +63,7 @@ public class ThriftTemplate {
         return result;
     }
     
-    private void deleteRow(String ksName, String cfName, String rowKey) {
+    public void deleteRow(String ksName, String cfName, String rowKey) {
         Keyspace ksp = HFactory.createKeyspace(ksName, cluster);
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
         template.deleteRow(rowKey);
@@ -73,7 +73,7 @@ public class ThriftTemplate {
         }
     }
     
-    private Map<String, String> readRow(String ksName, String cfName, String rowKey) {
+    public Map<String, String> readRow(String ksName, String cfName, String rowKey) {
         Keyspace ksp = HFactory.createKeyspace(ksName, cluster);
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
         ColumnFamilyResult<String, String> results = template.queryColumns(rowKey);
@@ -84,7 +84,7 @@ public class ThriftTemplate {
         return result;
     }
     
-    private List<String> createRows(String ksName, String cfName) {
+    public List<String> createRows(String ksName, String cfName) {
         List<String> rowKeys = new ArrayList<>();
         for ( int i = 0; i < 3; i++ ) {
             rowKeys.add("rowKey_" + i);
@@ -102,7 +102,7 @@ public class ThriftTemplate {
         return rowKeys;
     }
     
-    private String createRow(String ksName, String cfName) {
+    public String createRow(String ksName, String cfName) {
         String rowKey = "rowKey_" + new Random().nextInt(100);
         Keyspace ksp = HFactory.createKeyspace(ksName, cluster);
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
@@ -115,27 +115,27 @@ public class ThriftTemplate {
     }
     
     
-    private void assertTrue(boolean state, String msg) {
+    public void assertTrue(boolean state, String msg) {
         if (!state) {
             throw new IllegalStateException(msg);
         }
     }
 
-    private String createColumnFamily(String ksName) {
+    public String createColumnFamily(String ksName) {
         String cfName = "cf_" + new Random().nextInt(100);
         ColumnFamilyDefinition cfDef = HFactory.createColumnFamilyDefinition(ksName, cfName);
         cluster.addColumnFamily(cfDef);
         return cfName;
     }
     
-    private String createKeyspace() {
+    public String createKeyspace() {
         String keyspaceName = "ks_" + new Random().nextInt(100);
         KeyspaceDefinition newKeyspace = HFactory.createKeyspaceDefinition(keyspaceName);
         cluster.addKeyspace(newKeyspace);
         return keyspaceName;
     }
     
-    private Cluster createCluster() {
+    public Cluster createCluster() {
         CassandraHostConfigurator config = new CassandraHostConfigurator("127.0.0.1");
         config.setMaxActive(50);
         config.setAutoDiscoverHosts(true);
@@ -149,49 +149,4 @@ public class ThriftTemplate {
         return cluster;
     }
 
-    public static void main(String[] params) {
-        ThriftTemplate ex = new ThriftTemplate();
-        System.out.println("create cluster:" + ex.cluster.getName());
-        
-        String ksName = ex.createKeyspace();
-        System.out.println("create ks:" + ksName);
-        
-        String cfName = ex.createColumnFamily(ksName);
-        System.out.println("create cf:" + cfName);
-
-        KeyspaceDefinition ksDef = ex.cluster.describeKeyspace(ksName);
-        System.out.println("read ks:" + ksDef.getName());
-        for ( ColumnFamilyDefinition cfDef: ksDef.getCfDefs() ) {
-            System.out.println("read cf:" + cfDef.getName());
-        }
-        
-        String rowKey = ex.createRow(ksName, cfName);
-        System.out.println("create row:" + rowKey);
-        
-        Map<String, String> m = ex.readRow(ksName, cfName, rowKey);
-        System.out.println("read row:" + m);
-        
-        ex.deleteRow(ksName, cfName, rowKey);
-        System.out.println("delete row:" + rowKey);
-
-        List<String> rowKeys = ex.createRows(ksName, cfName);
-        System.out.println("create rows:" + rowKeys);
-        
-        Map<String, Map<String,String>> readRows = ex.readRows(ksName, cfName, rowKeys);
-        for ( Map.Entry<String, Map<String,String>> entry: readRows.entrySet() ) {
-            String key = entry.getKey();
-            Map<String,String> row = entry.getValue();
-            System.out.println("read rows. rowKey:" + key + ", row:" + row);
-        }
-
-        ex.deleteRows(ksName, cfName, rowKeys);
-        System.out.println("delete rows:" + rowKeys);
-        
-        ex.cluster.dropColumnFamily(ksName, cfName);
-        System.out.println("drop columnfamily. ks:" + ksName + ", cf:" + cfName);
-        
-        ex.cluster.dropKeyspace(ksName);
-        System.out.println("drop keyspace:" + ksName);
-    }
-    
 }
