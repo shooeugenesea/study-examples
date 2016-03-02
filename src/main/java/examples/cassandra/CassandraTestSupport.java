@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -34,17 +33,13 @@ public class CassandraTestSupport {
     
     @Before
     public void before() throws Exception {
-        cassandra.start();
-        System.out.println("wait 30 seconds");
-        TimeUnit.SECONDS.sleep(30);
+        cassandra.start().get();
         assertCassandraStarted();
     }
 
     @After
     public void after() throws Exception {
-        cassandra.stop();
-        System.out.println("wait 30 seconds");
-        TimeUnit.SECONDS.sleep(30);
+        cassandra.stop().get();
         assertCassandraStopped();
     }
     

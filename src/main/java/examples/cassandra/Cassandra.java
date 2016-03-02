@@ -5,12 +5,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import examples.windows.NetStat;
 import examples.windows.TaskKill;
 
 public class Cassandra {
 
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
     private Path executablePath;
     private Process process;
     
@@ -18,13 +24,25 @@ public class Cassandra {
         this.executablePath = executablePath;
     }
     
-    public void start() throws IOException {
+    public Future<Void> start() throws IOException {
         System.out.println("start cassandra. path: " + executablePath);
         this.process = startProcess(executablePath.toString());
         System.out.println("cassandra started");
+        return executor.submit(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                while (true) {
+                    if (NetStat.port(9160) != null) {
+                        break;
+                    }
+                    TimeUnit.SECONDS.sleep(1);
+                }
+                return null;
+            }
+        });
     }
 
-    public void stop() {
+    public Future<Void> stop() {
         System.out.println("stop cassandra...");
         if (process != null) {
             process.destroy();
@@ -33,7 +51,19 @@ public class Cassandra {
         if (netstat != null) {
             TaskKill.pid(netstat.getPid());
         }
-        System.out.println("cassandra stopped");
+        return executor.submit(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                while (true) {
+                    if (NetStat.port(9160) == null) {
+                        break;
+                    }
+                    TimeUnit.SECONDS.sleep(1);
+                }
+                return null;
+            }
+        });
     }
     
     private Process startProcess(String... commands) throws IOException {
