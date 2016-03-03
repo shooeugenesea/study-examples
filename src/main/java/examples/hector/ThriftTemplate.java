@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
@@ -84,7 +85,7 @@ public class ThriftTemplate {
         return result;
     }
     
-    public List<String> createRows(String ksName, String cfName) {
+    public List<String> createRows(String ksName, String cfName, List<Map<String, String>> rows) {
         List<String> rowKeys = new ArrayList<>();
         for ( int i = 0; i < 3; i++ ) {
             rowKeys.add("rowKey_" + i);
@@ -92,23 +93,25 @@ public class ThriftTemplate {
         Keyspace ksp = HFactory.createKeyspace(ksName, cluster);
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
         ColumnFamilyUpdater<String, String> updater = template.createUpdater();
-        for ( String rowKey: rowKeys ) {
+        for ( ListIterator<Map<String, String>> i = rows.listIterator(); i.hasNext(); ) {
+            String rowKey = "rowKey_" + i.nextIndex(); 
+            rowKeys.add(rowKey);
             updater.addKey(rowKey);
-            for ( int i = 0; i < 3; i++ ) {
-                updater.setString(rowKey + "_column_" + i, "測試" + i);
+            for ( Map.Entry<String, String> entry: i.next().entrySet() ) {
+                updater.setString(entry.getKey(), entry.getValue());
             }
         }
         template.update(updater);
         return rowKeys;
     }
     
-    public String createRow(String ksName, String cfName) {
+    public String createRow(String ksName, String cfName, Map<String, String> columns) {
         String rowKey = "rowKey_" + new Random().nextInt(100);
         Keyspace ksp = HFactory.createKeyspace(ksName, cluster);
         ColumnFamilyTemplate<String, String> template = new ThriftColumnFamilyTemplate<String, String>(ksp, cfName, StringSerializer.get(), StringSerializer.get());
         ColumnFamilyUpdater<String, String> updater = template.createUpdater(rowKey);
-        for ( int i = 0; i < 3; i++ ) {
-            updater.setString("測試" + i, "測試" + i);
+        for ( Map.Entry<String, String> entry: columns.entrySet() ) {
+            updater.setString(entry.getKey(), entry.getValue());
         }
         template.update(updater);
         return rowKey;

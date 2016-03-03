@@ -1,9 +1,12 @@
 package examples.hector;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import examples.cassandra.CassandraTestSupport;
@@ -18,48 +21,70 @@ public class ThriftTemplateTest extends CassandraTestSupport {
 
     @Test
     public void test() {
-        ThriftTemplate ex = new ThriftTemplate();
-        System.out.println("create cluster:" + ex.cluster.getName());
+        ThriftTemplate template = new ThriftTemplate();
+        System.out.println("create cluster:" + template.cluster.getName());
         
-        String ksName = ex.createKeyspace();
+        String ksName = template.createKeyspace();
         System.out.println("create ks:" + ksName);
         
-        String cfName = ex.createColumnFamily(ksName);
+        String cfName = template.createColumnFamily(ksName);
         System.out.println("create cf:" + cfName);
 
-        KeyspaceDefinition ksDef = ex.cluster.describeKeyspace(ksName);
-        System.out.println("read ks:" + ksDef.getName());
-        for ( ColumnFamilyDefinition cfDef: ksDef.getCfDefs() ) {
-            System.out.println("read cf:" + cfDef.getName());
-        }
+        KeyspaceDefinition ksDef = template.cluster.describeKeyspace(ksName);
+        Assert.assertEquals(ksName, ksDef.getName());
+
+        Assert.assertEquals(1, ksDef.getCfDefs().size());
+        ColumnFamilyDefinition cfDef = ksDef.getCfDefs().get(0);
+        Assert.assertEquals(cfName, cfDef.getName());
         
-        String rowKey = ex.createRow(ksName, cfName);
-        System.out.println("create row:" + rowKey);
+        Map<String, String> columns = new HashMap<String, String>();
+        columns.put("test1", "test1");
+        columns.put("test2", "test2");
+        columns.put("test3", "test3");
+        String rowKey = template.createRow(ksName, cfName, columns);
+        Assert.assertNotNull(rowKey);
         
-        Map<String, String> m = ex.readRow(ksName, cfName, rowKey);
+        Map<String, String> m = template.readRow(ksName, cfName, rowKey);
+        Assert.assertEquals("test1", m.get("test1"));
+        Assert.assertEquals("test2", m.get("test2"));
+        Assert.assertEquals("test3", m.get("test3"));
         System.out.println("read row:" + m);
         
-        ex.deleteRow(ksName, cfName, rowKey);
+        template.deleteRow(ksName, cfName, rowKey);
         System.out.println("delete row:" + rowKey);
-
-        List<String> rowKeys = ex.createRows(ksName, cfName);
-        System.out.println("create rows:" + rowKeys);
         
-        Map<String, Map<String,String>> readRows = ex.readRows(ksName, cfName, rowKeys);
-        for ( Map.Entry<String, Map<String,String>> entry: readRows.entrySet() ) {
-            String key = entry.getKey();
-            Map<String,String> row = entry.getValue();
-            System.out.println("read rows. rowKey:" + key + ", row:" + row);
-        }
-
-        ex.deleteRows(ksName, cfName, rowKeys);
-        System.out.println("delete rows:" + rowKeys);
+        Assert.assertEquals(0, template.readRow(ksName, cfName, rowKey).size());
         
-        ex.cluster.dropColumnFamily(ksName, cfName);
+        List<Map<String, String>> rows = new ArrayList<>();
+        Map<String, String> row1Columns = new HashMap<>(); row1Columns.put("r1c1", "r1c1v1");
+        Map<String, String> row2Columns = new HashMap<>(); row2Columns.put("r2c2", "r2c2v2");
+        Map<String, String> row3Columns = new HashMap<>(); row3Columns.put("r3c3", "r3c3v3");
+        rows.add(row1Columns);
+        rows.add(row2Columns);
+        rows.add(row3Columns);
+        
+        List<String> rowKeys = template.createRows(ksName, cfName, rows);
+        Map<String, Map<String,String>> readRows = template.readRows(ksName, cfName, rowKeys);
+        Assert.assertEquals(3, readRows.size());
+        Map<String, String> readRow1 = readRows.get(rowKeys.get(0));
+        Map<String, String> readRow2 = readRows.get(rowKeys.get(1));
+        Map<String, String> readRow3 = readRows.get(rowKeys.get(2));
+        Assert.assertTrue(readRow1.equals(row1Columns));
+        Assert.assertTrue(readRow2.equals(row2Columns));
+        Assert.assertTrue(readRow3.equals(row3Columns));
+        
+        template.deleteRows(ksName, cfName, rowKeys);
+        readRows = template.readRows(ksName, cfName, rowKeys);
+        Assert.assertTrue(readRows.isEmpty());
+        
+        template.cluster.dropColumnFamily(ksName, cfName);
         System.out.println("drop columnfamily. ks:" + ksName + ", cf:" + cfName);
         
-        ex.cluster.dropKeyspace(ksName);
+        template.cluster.dropKeyspace(ksName);
         System.out.println("drop keyspace:" + ksName);
+        
+        ksDef = template.cluster.describeKeyspace(ksName);
+        Assert.assertNull(ksDef);
     }
     
 }
