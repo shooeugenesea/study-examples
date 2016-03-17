@@ -1,1 +1,1 @@
-Wiki: https://github.com/shooeugenesea/study-practice/wiki
+This is a template for new branch
