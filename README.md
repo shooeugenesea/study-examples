@@ -1,1 +1,1 @@
-Wiki: https://github.com/shooeugenesea/study-practice.wiki.git
+Wiki: https://github.com/shooeugenesea/study-practice/wiki
