@@ -1,15 +1,9 @@
-/*
- * Copyright (C) 2016 Digital River, Inc. All Rights Reserved
- *
- */
+
 package dsaa.array;
 
 import java.util.Arrays;
 import java.util.Random;
 
-/**
- * @author <a href="mailto:iliao@digitalriver.com">Isaac Liao</a>
- */
 public class QuickSort {
 
     public static void main(String[] params) {
