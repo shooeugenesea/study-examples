@@ -32,12 +32,24 @@ public class OrderingTest {
 
     @Test
     public void reverse() {
-//        Collections.sort(numbers, new Ordering<NumbersObject>() {
-//            @Override
-//            public int compare(NumbersObject numbersObject, NumbersObject t1) {
-//
-//            }
-//        });
+        Collections.reverse(numbers);
+        Assert.assertEquals(n4, numbers.get(0));
+        Assert.assertEquals(n3, numbers.get(1));
+        Assert.assertEquals(n2, numbers.get(2));
+        Assert.assertEquals(n1, numbers.get(3));
+    }
+
+    @Test
+    public void nullsFirst() {
+        numbers = new ArrayList<>(numbers);
+        numbers.add(null);
+        Ordering ordering = Ordering.natural().nullsLast();
+        Collections.sort(numbers, ordering);
+        Assert.assertEquals(null, numbers.get(0));
+        Assert.assertEquals(n1, numbers.get(1));
+        Assert.assertEquals(n2, numbers.get(2));
+        Assert.assertEquals(n3, numbers.get(3));
+        Assert.assertEquals(n4, numbers.get(4));
     }
 
 }
