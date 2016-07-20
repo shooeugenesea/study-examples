@@ -1,5 +1,6 @@
 package guava;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ComparisonChain;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,4 +28,27 @@ public class ComparisonChainTest {
         Assert.assertTrue(n4 == list.get(3));
     }
 
+    private final class NumbersObject {
+
+        public final Integer a;
+        public final Integer b;
+        public final Integer c;
+
+        public NumbersObject(Integer a, Integer b, Integer c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this)
+                    .add("a",a)
+                    .add("b",b)
+                    .add("c",c)
+                    .toString();
+        }
+    }
+
 }
+
