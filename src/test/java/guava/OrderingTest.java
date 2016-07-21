@@ -183,6 +183,40 @@ public class OrderingTest {
         Assert.assertEquals(aa, all.get(4));
     }
 
+    @Test
+    public void onResultOf() {
+        Comparator<Integer> c = Ordering.<Integer>natural().onResultOf((x) -> Optional.ofNullable(x).orElse(4)%5);
+        List<Integer> list = Arrays.asList(5, 11, 4, 1, 2, 5, 7, 9, null);
+        Collections.sort(list, c);
+        System.out.println(list);
+        Assert.assertEquals(5, list.get(0).intValue());
+        Assert.assertEquals(5, list.get(1).intValue());
+        Assert.assertEquals(11, list.get(2).intValue());
+        Assert.assertEquals(1, list.get(3).intValue());
+        Assert.assertEquals(2, list.get(4).intValue());
+        Assert.assertEquals(7, list.get(5).intValue());
+        Assert.assertEquals(4, list.get(6).intValue());
+        Assert.assertEquals(9, list.get(7).intValue());
+        Assert.assertEquals(null, list.get(8));
+    }
+
+    @Test
+    public void onResultOf_reverse() {
+        Comparator<Integer> c = Ordering.<Integer>natural().reverse().onResultOf((x) -> Optional.ofNullable(x).orElse(4)%5);
+        List<Integer> list = Arrays.asList(5, 11, 4, 1, 2, 5, 7, 9, null);
+        Collections.sort(list, c);
+        System.out.println(list);
+        Assert.assertEquals(5, list.get(8).intValue());
+        Assert.assertEquals(5, list.get(7).intValue());
+        Assert.assertEquals(11, list.get(5).intValue());
+        Assert.assertEquals(1, list.get(6).intValue());
+        Assert.assertEquals(2, list.get(3).intValue());
+        Assert.assertEquals(7, list.get(4).intValue());
+        Assert.assertEquals(4, list.get(0).intValue());
+        Assert.assertEquals(9, list.get(1).intValue());
+        Assert.assertEquals(null, list.get(2));
+    }
+
     private final class NumbersObject {
 
         public final Integer a;
