@@ -3,8 +3,10 @@ package guava;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -127,6 +129,58 @@ public class OrderingTest {
         Assert.assertEquals(n3, numbers.get(2));
         Assert.assertEquals(n1, numbers.get(3));
         Assert.assertEquals(n2, numbers.get(4));
+    }
+
+    @Test
+    public void lexicographically() {
+        ImmutableList<String> empty = ImmutableList.of();
+        ImmutableList<String> a = ImmutableList.of("a");
+        ImmutableList<String> aa = ImmutableList.of("a", "a");
+        ImmutableList<String> ab = ImmutableList.of("a", "b");
+        ImmutableList<String> b = ImmutableList.of("b");
+        List<ImmutableList<String>> all = Arrays.asList(b,a,ab,aa,empty);
+        Ordering<Iterable<String>> c = Ordering.<String>natural().lexicographical();
+        Collections.sort(all, c);
+        Assert.assertEquals(empty, all.get(0));
+        Assert.assertEquals(a, all.get(1));
+        Assert.assertEquals(aa, all.get(2));
+        Assert.assertEquals(ab, all.get(3));
+        Assert.assertEquals(b, all.get(4));
+    }
+
+    @Test
+    public void lexicographicallyReverse() {
+        ImmutableList<String> empty = ImmutableList.of();
+        ImmutableList<String> a = ImmutableList.of("a");
+        ImmutableList<String> aa = ImmutableList.of("a", "a");
+        ImmutableList<String> ab = ImmutableList.of("a", "b");
+        ImmutableList<String> b = ImmutableList.of("b");
+        List<ImmutableList<String>> all = Arrays.asList(b,a,ab,aa,empty);
+        Ordering<Iterable<String>> c = Ordering.<String>natural().lexicographical().reverse();
+        Collections.sort(all, c);
+        Assert.assertEquals(empty, all.get(4));
+        Assert.assertEquals(a, all.get(3));
+        Assert.assertEquals(aa, all.get(2));
+        Assert.assertEquals(ab, all.get(1));
+        Assert.assertEquals(b, all.get(0));
+    }
+
+    @Test
+    public void reverseLexicographically() {
+        ImmutableList<String> empty = ImmutableList.of();
+        ImmutableList<String> a = ImmutableList.of("a");
+        ImmutableList<String> aa = ImmutableList.of("a", "a");
+        ImmutableList<String> ab = ImmutableList.of("a", "b");
+        ImmutableList<String> b = ImmutableList.of("b");
+        List<ImmutableList<String>> all = Arrays.asList(b,a,ab,aa,empty);
+        Ordering<Iterable<String>> c = Ordering.<String>natural().reverse().lexicographical();
+        Collections.sort(all, c);
+        System.out.println(all);
+        Assert.assertEquals(empty, all.get(0));
+        Assert.assertEquals(b, all.get(1));
+        Assert.assertEquals(a, all.get(2));
+        Assert.assertEquals(ab, all.get(3));
+        Assert.assertEquals(aa, all.get(4));
     }
 
     private final class NumbersObject {
