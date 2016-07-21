@@ -217,7 +217,35 @@ public class OrderingTest {
         Assert.assertEquals(null, list.get(2));
     }
 
-    private final class NumbersObject {
+    @Test
+    public void greatestOf() {
+        NumbersObject n1 = new NumbersObject(1, 2, 3);
+        NumbersObject n2 = new NumbersObject(1, 2, 4);
+        NumbersObject n3 = new NumbersObject(-1, 2, -3);
+        NumbersObject n4 = new NumbersObject(-2, 3, 5);
+        NumbersObject nullNumber = new NumbersObject(null,null,null);
+        List<NumbersObject> numbers = Arrays.asList(n1, n2, n3, n4, nullNumber);
+        List<NumbersObject> greatestOf = Ordering.natural().greatestOf(numbers,3);
+        Assert.assertEquals(n4, greatestOf.get(0));
+        Assert.assertEquals(n3, greatestOf.get(1));
+        Assert.assertEquals(n1, greatestOf.get(2));
+    }
+
+    @Test
+    public void leastOf() {
+        NumbersObject n1 = new NumbersObject(1, 2, 3);
+        NumbersObject n2 = new NumbersObject(2, 2, 4);
+        NumbersObject n3 = new NumbersObject(-1, 2, -3);
+        NumbersObject n4 = new NumbersObject(-2, 3, 5);
+        NumbersObject nullNumber = new NumbersObject(null,null,null);
+        List<NumbersObject> numbers = Arrays.asList(n1, n2, n3, n4, nullNumber);
+        List<NumbersObject> leastOf = Ordering.natural().leastOf(numbers,3);
+        Assert.assertEquals(nullNumber, leastOf.get(0));
+        Assert.assertEquals(n2, leastOf.get(1));
+        Assert.assertEquals(n1, leastOf.get(2));
+    }
+
+    private final class NumbersObject implements Comparable<NumbersObject> {
 
         public final Integer a;
         public final Integer b;
@@ -236,6 +264,19 @@ public class OrderingTest {
                     .add("b",b)
                     .add("c",c)
                     .toString();
+        }
+
+        @Override
+        public int compareTo(NumbersObject o) {
+            if (a == null && o.a == null) {
+                return 0;
+            } else if (a == null) {
+                return -1;
+            } else if (o.a == null) {
+                return 1;
+            } else {
+                return Ints.compare(o.a,a);
+            }
         }
     }
 }
