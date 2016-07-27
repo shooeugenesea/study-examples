@@ -26,5 +26,14 @@ public class Sort {
         Arrays.sort(names, c);
         return names;
     }
-    
+
+    public static String[] methodReference(String...names) {
+        Arrays.sort(names, Sort::byLength);
+        return names;
+    }
+
+    public static int byLength(String obj1, String obj2) {
+        return obj1.length() - obj2.length();
+    }
+
 }

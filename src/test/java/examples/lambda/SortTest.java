@@ -22,5 +22,10 @@ public class SortTest {
     public void lambda2Sort() {
         Assert.assertEquals(Arrays.toString(new String[]{"1","22","333"}), Arrays.toString(Sort.lambdaSort2("333","22","1")));
     }
-    
+
+    @Test
+    public void methodReference() {
+        Assert.assertEquals(Arrays.toString(new String[]{"1","22","333"}), Arrays.toString(Sort.methodReference("333","22","1")));
+    }
+
 }
