@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author <a href="https://github.com/shooeugenesea">isaac</a>
@@ -26,6 +27,18 @@ public class StreamTest {
         Assert.assertEquals(sumPersonAgeManually(persons), sumPersonAgeByReduce(persons));
         Assert.assertEquals(avgPersonAgeManually(persons), avgPersonAgeByStream(persons), 0);
         Assert.assertEquals(3, countAgeLargerOrEqualTo4(persons));
+    }
+
+    @Test
+    public void flatMap() {
+        List<String> list = Stream.of(Arrays.asList(1,2), Arrays.asList(3,4))
+                .flatMap(nums -> nums.stream().map(n -> "QQ" + String.valueOf(n+100)))
+                .collect(Collectors.toList());
+        Assert.assertEquals(4,list.size());
+        Assert.assertEquals("QQ101",list.get(0));
+        Assert.assertEquals("QQ102",list.get(1));
+        Assert.assertEquals("QQ103",list.get(2));
+        Assert.assertEquals("QQ104",list.get(3));
     }
 
     @Test
