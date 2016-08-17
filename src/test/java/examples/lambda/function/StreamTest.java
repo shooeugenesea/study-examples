@@ -3,16 +3,46 @@ package examples.lambda.function;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAdjuster;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import static java.time.LocalDate.*;
 
 /**
  * @author <a href="https://github.com/shooeugenesea">isaac</a>
  */
 public class StreamTest {
+
+    @Test
+    public void map() {
+        List<Calendar> calendars = Arrays.asList(
+                newCalendar(2016,0,1), newCalendar(2016,1,1), newCalendar(2016,2,1), newCalendar(2016,3,1),
+                newCalendar(2016,4,1), newCalendar(2016,5,1), newCalendar(2016,6,1), newCalendar(2016,7,1),
+                newCalendar(2016,8,1), newCalendar(2016,9,1), newCalendar(2016,10,1), newCalendar(2016,11,1));
+        List<LocalDate> localDates = calendars.stream().map(c -> LocalDate.of(c.get(Calendar.YEAR), c.get(Calendar.MONTH)+1, c.get(Calendar.DAY_OF_MONTH))).collect(Collectors.toList());
+        Assert.assertEquals(calendars.size(), localDates.size());
+        for ( int i = 0; i < calendars.size(); i++ ) {
+            Calendar c = calendars.get(i);
+            LocalDate d = localDates.get(i);
+            Assert.assertEquals(c.get(Calendar.YEAR), d.getYear());
+            Assert.assertEquals(c.get(Calendar.MONTH)+1, d.getMonthValue());
+            Assert.assertEquals(c.get(Calendar.DAY_OF_MONTH), d.getDayOfMonth());
+        }
+    }
+
+    private Calendar newCalendar(int year, int month, int dayOfMonth) {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year);
+        c.set(Calendar.MONTH, month);
+        c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        return c;
+    }
 
     @Test
     public void mapToInt() {
