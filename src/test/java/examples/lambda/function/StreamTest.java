@@ -45,6 +45,14 @@ public class StreamTest {
     }
 
     @Test
+    public void reduceToSum() {
+        int sum = Stream.of(2,5,4).reduce(10, (total, current) -> total + current);
+        Assert.assertEquals(2+5+4+10, sum);
+    }
+
+
+
+    @Test
     public void mapToInt() {
         List<Person> persons = Arrays.asList(
                 new Person("A", 2, Gender.Male),
