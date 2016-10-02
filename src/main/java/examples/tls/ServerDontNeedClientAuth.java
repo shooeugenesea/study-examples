@@ -10,10 +10,9 @@ import java.util.logging.Logger;
 
 /**
  * Reference http://www.programgo.com/article/71463377839/
- * Reference https://docs.oracle.com/cd/E19509-01/820-3503/6nf1il6er/index.html
  * @author <a href="https://github.com/shooeugenesea">isaac</a>
  */
-public class TlsServer {
+public class ServerDontNeedClientAuth {
 
     private static String SERVER_KEY_STORE = "C:\\Users\\isaac\\workspace_github\\study-practice\\src\\main\\resources\\certs\\server.jks";
     private static String SERVER_KEY_STORE_PASSWORD = "123456";
@@ -46,7 +45,7 @@ public class TlsServer {
 
     private static SSLServerSocket createSSLServerSocket() throws Exception{
         // whether enable the debug mode
-//        System.setProperty("javax.net.debug", "ssl,handshake");
+        System.setProperty("javax.net.debug", "ssl,handshake");
         System.setProperty("javax.net.ssl.trustStore", SERVER_KEY_STORE);
         SSLContext context = SSLContext.getInstance("TLS");
 
@@ -60,7 +59,7 @@ public class TlsServer {
         ServerSocket serverSocket = factory.createServerSocket(8443);
         SSLServerSocket sslServerSocket =  (SSLServerSocket) serverSocket;
         // set whether need the client authentication
-        sslServerSocket.setNeedClientAuth(true);
+        sslServerSocket.setNeedClientAuth(false);
         return sslServerSocket;
     }
 

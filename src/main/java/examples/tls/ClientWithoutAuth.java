@@ -12,11 +12,12 @@ import java.net.Socket;
 import java.security.KeyStore;
 
 /**
+ * Reference http://www.programgo.com/article/71463377839/
  * @author <a href="https://github.com/shooeugenesea">isaac</a>
  */
-public class Client {
+public class ClientWithoutAuth {
 
-    private static String CLIENT_KEY_STORE = "C:\\Users\\isaac\\workspace_github\\study-practice\\src\\main\\resources\\certs\\client.jks";
+    private static String CLIENT_KEY_STORE = "C:\\Users\\isaac\\workspace_github\\study-practice\\src\\main\\resources\\certs\\catrust.jks";
     private static String CLIENT_KEY_STORE_PASSWORD = "123456";
 
     public static void main(String[] params) throws Exception {
@@ -45,8 +46,8 @@ public class Client {
     }
 
     private static void connect()throws Exception{
-//        Socket s = createNonAuthenticationSocket();
-     Socket s = createAuthenticationSocket();
+        Socket s = createNonAuthenticationSocket();
+//     Socket s = createAuthenticationSocket();
 
         PrintWriter writer = new PrintWriter(s.getOutputStream());
         BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
