@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 
 /**
@@ -17,7 +18,7 @@ import java.security.KeyStore;
  */
 public class ClientWithoutAuth {
 
-    private static String CLIENT_KEY_STORE = "C:\\Users\\isaac\\workspace_github\\study-practice\\src\\main\\resources\\certs\\catrust.jks";
+    private static String CLIENT_KEY_STORE = Paths.get("src/main/resources/certs/catrust.jks").toAbsolutePath().toString();
     private static String CLIENT_KEY_STORE_PASSWORD = "123456";
 
     public static void main(String[] params) throws Exception {

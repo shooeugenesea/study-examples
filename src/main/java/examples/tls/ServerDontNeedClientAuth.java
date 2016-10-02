@@ -5,6 +5,7 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.logging.Logger;
 
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class ServerDontNeedClientAuth {
 
-    private static String SERVER_KEY_STORE = "C:\\Users\\isaac\\workspace_github\\study-practice\\src\\main\\resources\\certs\\server.jks";
+    private static String SERVER_KEY_STORE = Paths.get("src/main/resources/certs/server.jks").toAbsolutePath().toString();
     private static String SERVER_KEY_STORE_PASSWORD = "123456";
 
     public static void main(String[] params) throws Exception {
