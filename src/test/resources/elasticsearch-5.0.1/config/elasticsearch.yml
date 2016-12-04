@@ -56,7 +56,7 @@
 #
 # Set a custom port for HTTP:
 #
-#http.port: 9200
+#curl.port: 9200
 #
 # For more information, see the documentation at:
 # <https://www.elastic.co/guide/en/elasticsearch/reference/5.0/modules-network.html>
