@@ -31,7 +31,7 @@ public class Main {
          * URLs that are fetched and then the crawler starts following links
          * which are found in these pages
          */
-        controller.addSeed("https://www.ptt.cc/bbs/rent-exp/index.html");
+        controller.addSeed("https://www.ptt.cc/bbs/Salary/index.html");
 
         /*
          * Start the crawl. This is a blocking operation, meaning that your code
