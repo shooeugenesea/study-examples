@@ -2,6 +2,7 @@ package examples;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -10,16 +11,25 @@ import java.util.List;
 public class JsoupExample {
 
     public static void main(String[] params) throws IOException {
-        List<KanbanPage.KanbanRent> hotLinks = new ArrayList<>();
-        KanbanPage index = new KanbanPage("bbs/e-shopping/index.html");
-        hotLinks.addAll(index.getHotRents());
-        KanbanPage current = index;
-        while (!current.getPrevPageLink().isEmpty() && hotLinks.size() < 100) {
-            current = new KanbanPage(current.getPrevPageLink());
-            hotLinks.addAll(current.getHotRents());
-            System.out.println(hotLinks.size());
-        }
-        hotLinks.forEach(System.out::println);
+        String[] ss = new String[]{
+                "bbs/e-shopping/index.html",
+                "bbs/Food/index.html",
+//                "bbs/Gossiping/index.html",
+        };
+        Arrays.stream(ss).forEach(s -> {
+            new Thread(){
+                @Override
+                public void run() {
+                    try {
+                        Kanban kanban = new Kanban(s);
+                        System.out.println(kanban.getHotLinks());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        });
+
     }
 
 

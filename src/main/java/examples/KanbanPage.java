@@ -22,14 +22,19 @@ public class KanbanPage {
     public KanbanPage(String kanbanUrl) throws IOException {
         Document doc = Jsoup.connect(PTT.baseUrl + kanbanUrl).get();
         Element actionBarElmt = doc.getElementById("action-bar-container");
-        this.prevPageLink = actionBarElmt.getAllElements().stream()
-                .filter(e -> e.text().contains("上頁"))
-                .filter(e -> StringUtils.isNotBlank(e.attr("href")))
-                .findFirst().get().attr("href");
-        this.hotRents = doc.getElementsByClass("r-ent").stream()
-                .map(e -> new KanbanRent(e))
-                .filter(k -> k.isHot())
-                .collect(Collectors.toList());
+        try {
+            this.prevPageLink = actionBarElmt.getAllElements().stream()
+                    .filter(e -> e.text().contains("上頁"))
+                    .filter(e -> StringUtils.isNotBlank(e.attr("href")))
+                    .findFirst().get().attr("href");
+            this.hotRents = doc.getElementsByClass("r-ent").stream()
+                    .map(e -> new KanbanRent(e))
+                    .filter(k -> k.isHot())
+                    .collect(Collectors.toList());
+        } catch (RuntimeException ex) {
+            System.out.println(actionBarElmt.toString());
+            throw ex;
+        }
     }
 
     public List<KanbanRent> getHotRents() {
