@@ -46,11 +46,13 @@ public class KanbanPage {
     }
 
     public static class KanbanRent {
+        private final String html;
         private final int responseCount;
         private final String link;
         private final String title;
         private final String date;
         KanbanRent(Element rentElmt) {
+            this.html = rentElmt.html();
             Element responseSpanElmt = rentElmt.getElementsByClass("nrec").first().getElementsByTag("span").first();
             String respCntString = responseSpanElmt == null ? "0" : responseSpanElmt.text();
             this.responseCount = "爆".equals(respCntString) ? Integer.MAX_VALUE : NumberUtils.toInt(respCntString);
@@ -67,6 +69,10 @@ public class KanbanPage {
         @Override
         public String toString() {
             return "responseCount:" + responseCount + ", title:" + title + ", link:" + link + ", date:" + date;
+        }
+
+        public String getHtml() {
+            return html;
         }
     }
 

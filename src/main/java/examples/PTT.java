@@ -5,6 +5,6 @@ package examples;
  */
 public class PTT {
 
-    public static final String baseUrl = "https://www.ptt.cc/";
+    public static final String baseUrl = "https://www.ptt.cc";
 
 }
