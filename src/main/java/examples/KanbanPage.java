@@ -30,6 +30,7 @@ public class KanbanPage {
             this.hotRents = doc.getElementsByClass("r-ent").stream()
                     .map(e -> new KanbanRent(e))
                     .filter(k -> k.isHot())
+                    .filter(k -> StringUtils.isNotBlank(k.getTitle()))
                     .collect(Collectors.toList());
         } catch (RuntimeException ex) {
             System.out.println(actionBarElmt.toString());
@@ -46,13 +47,11 @@ public class KanbanPage {
     }
 
     public static class KanbanRent {
-        private final String html;
         private final int responseCount;
         private final String link;
         private final String title;
         private final String date;
         KanbanRent(Element rentElmt) {
-            this.html = rentElmt.html();
             Element responseSpanElmt = rentElmt.getElementsByClass("nrec").first().getElementsByTag("span").first();
             String respCntString = responseSpanElmt == null ? "0" : responseSpanElmt.text();
             this.responseCount = "爆".equals(respCntString) ? Integer.MAX_VALUE : NumberUtils.toInt(respCntString);
@@ -71,8 +70,20 @@ public class KanbanPage {
             return "responseCount:" + responseCount + ", title:" + title + ", link:" + link + ", date:" + date;
         }
 
-        public String getHtml() {
-            return html;
+        public int getResponseCount() {
+            return responseCount;
+        }
+
+        public String getLink() {
+            return link;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public String getTitle() {
+            return title;
         }
     }
 

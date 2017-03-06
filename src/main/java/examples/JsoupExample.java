@@ -18,6 +18,15 @@ public class JsoupExample {
                 {"e-shopping", "/bbs/e-shopping/index.html"},
                 {"BabyMother", "/bbs/BabyMother/index.html"},
                 {"joke", "/bbs/joke/index.html"},
+                {"Baseball", "/bbs/Baseball/index.html"},
+                {"NBA", "/bbs/NBA/index.html"},
+                {"LoL", "/bbs/LoL/index.html"},
+                {"C_Chat", "/bbs/C_Chat/index.html"},
+                {"Stock", "/bbs/Stock/index.html"},
+                {"WomenTalk", "/bbs/WomenTalk/index.html"},
+                {"movie", "/bbs/movie/index.html"},
+                {"KoreaDrama", "/bbs/KoreaDrama/index.html"},
+                {"KoreaStar", "/bbs/KoreaStar/index.html"},
         };
         Arrays.stream(ss).forEach(s -> {
             new Thread(){
@@ -25,7 +34,10 @@ public class JsoupExample {
                 public void run() {
                     try {
                         Kanban kanban = new Kanban(s[1]);
-                        FileUtils.write(new File("D:/" + s[0] + ".html"), kanban.getHtml());
+                        File file = new File("D:/" + s[0] + ".html");
+                        System.out.println("Export file: " + file);
+                        FileUtils.write(file, kanban.getHtml());
+                        System.out.println("Export file: " + file + "...done");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
