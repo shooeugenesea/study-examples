@@ -1,10 +1,6 @@
 package examples;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +20,7 @@ public class Kanban {
         KanbanPage index = new KanbanPage(indexLink);
         hotLinks.addAll(index.getHotRents());
         KanbanPage current = index;
-        while (!current.getPrevPageLink().isEmpty() && hotLinks.size() < 300) {
+        while (!current.getPrevPageLink().isEmpty() && hotLinks.size() < 5) {
             current = new KanbanPage(current.getPrevPageLink());
             hotLinks.addAll(current.getHotRents());
             System.out.println(indexLink + ":" + hotLinks.size());
@@ -62,10 +58,6 @@ public class Kanban {
                         .toString()
             ).collect(Collectors.joining())
                     + "</table></body></html>";
-    }
-
-    public List<KanbanPage.KanbanRent> getHotLinks() {
-        return new ArrayList<>(hotLinks);
     }
 
     public String getHtml() {
