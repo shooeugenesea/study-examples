@@ -20,7 +20,7 @@ public class Kanban {
         KanbanPage index = new KanbanPage(indexLink);
         hotLinks.addAll(index.getHotRents());
         KanbanPage current = index;
-        while (!current.getPrevPageLink().isEmpty() && hotLinks.size() < 5) {
+        while (!current.getPrevPageLink().isEmpty() && hotLinks.size() < 300) {
             current = new KanbanPage(current.getPrevPageLink());
             hotLinks.addAll(current.getHotRents());
             System.out.println(indexLink + ":" + hotLinks.size());
