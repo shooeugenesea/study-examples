@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,27 +40,35 @@ public class JsoupExample {
                 {"KoreaDrama", "/bbs/KoreaDrama/index.html"},
                 {"KoreaStar", "/bbs/KoreaStar/index.html"},
         };
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(ss.length);
+        System.out.println(gitBinPath);
+        Executor executor = Executors.newFixedThreadPool(ss.length);
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
             scheduler.scheduleAtFixedRate(() -> {
+                CountDownLatch latch = new CountDownLatch(ss.length);
                 Arrays.stream(ss).forEach(s -> {
-                    try {
-                        Kanban kanban = new Kanban(s[1]);
-                        String filename = "pttread/" + s[0] + ".html";
-                        File file = new File("../shooeugenesea.github.io/" + filename);
-                        System.out.println("Export file: " + file);
-                        FileUtils.write(file, kanban.getHtml());
-                        System.out.println("Export file: " + file + "...done");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    executor.execute(() -> {
+                        try {
+                            Kanban kanban = new Kanban(s[1]);
+                            String filename = "pttread/" + s[0] + ".html";
+                            File file = new File("../shooeugenesea.github.io/" + filename);
+                            System.out.println("Export file: " + file);
+                            FileUtils.write(file, kanban.getHtml());
+                            System.out.println("Export file: " + file + "...done");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            latch.countDown();
+                        }
+                    });
                 });
                 try {
+                    latch.await();
                     ExpectJ expectinator = new ExpectJ(5);
                     Spawn shell = expectinator.spawn(gitBinPath + " --login -i");
                     shell.send("cd ../shooeugenesea.github.io/\n");
                     shell.send("git status \n");
                     shell.send("git add .\n");
-                    shell.send("git commit -m \"update files\n");
+                    shell.send("git commit -m \"update files\"\n");
                     shell.send("git push https://" + gitUserName + ":" + gitPassword + "@github.com/shooeugenesea/shooeugenesea.github.io --all \n");
                 } catch (Exception ex) {
                     ex.printStackTrace();
