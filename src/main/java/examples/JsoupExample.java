@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,8 +19,11 @@ public class JsoupExample {
 
 
     public static void main(String[] params) throws IOException {
-        String gitUserName = System.getenv("GIT_USERNAME");
-        String gitPassword = System.getenv("GIT_PASSWORD");
+        Properties config = new Properties();
+        config.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"));
+        String gitUserName = config.getProperty("GIT_USERNAME");
+        String gitPassword = config.getProperty("GIT_PASSWORD");
+        String gitBinPath = config.getProperty("GIT_BIN_PATH");
         String[][] ss = new String[][]{
                 {"e-shopping", "/bbs/e-shopping/index.html"},
                 {"BabyMother", "/bbs/BabyMother/index.html"},
@@ -50,8 +54,8 @@ public class JsoupExample {
                 });
                 try {
                     ExpectJ expectinator = new ExpectJ(5);
-                    Spawn shell = expectinator.spawn("\"C:\\Program Files (x86)\\git\\bin\\sh.exe\" --login -i");
-                    shell.send("cd ~/workspace_github/shooeugenesea.github.io/\n");
+                    Spawn shell = expectinator.spawn(gitBinPath + " --login -i");
+                    shell.send("cd ../shooeugenesea.github.io/\n");
                     shell.send("git status \n");
                     shell.send("git add .\n");
                     shell.send("git commit -m \"update files\n");
