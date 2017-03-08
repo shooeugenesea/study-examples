@@ -35,27 +35,31 @@ public class JsoupExample {
                 {"KoreaStar", "/bbs/KoreaStar/index.html"},
         };
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(ss.length);
-        Arrays.stream(ss).forEach(s -> {
             scheduler.scheduleAtFixedRate(() -> {
+                Arrays.stream(ss).forEach(s -> {
+                    try {
+                        Kanban kanban = new Kanban(s[1]);
+                        String filename = "pttread/" + s[0] + ".html";
+                        File file = new File("../shooeugenesea.github.io/" + filename);
+                        System.out.println("Export file: " + file);
+                        FileUtils.write(file, kanban.getHtml());
+                        System.out.println("Export file: " + file + "...done");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
                 try {
-                    Kanban kanban = new Kanban(s[1]);
-                    String filename = "pttread/" + s[0] + ".html";
-                    File file = new File("../shooeugenesea.github.io/" + filename);
-                    System.out.println("Export file: " + file);
-                    FileUtils.write(file, kanban.getHtml());
-                    System.out.println("Export file: " + file + "...done");
                     ExpectJ expectinator = new ExpectJ(5);
                     Spawn shell = expectinator.spawn("\"C:\\Program Files (x86)\\git\\bin\\sh.exe\" --login -i");
                     shell.send("cd ~/workspace_github/shooeugenesea.github.io/\n");
                     shell.send("git status \n");
                     shell.send("git add .\n");
-                    shell.send("git commit -m \"update file for " + s[0] + "\"\n");
+                    shell.send("git commit -m \"update files\n");
                     shell.send("git push https://" + gitUserName + ":" + gitPassword + "@github.com/shooeugenesea/shooeugenesea.github.io --all \n");
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }, 0, 5, TimeUnit.MINUTES);
-        });
 
     }
 
