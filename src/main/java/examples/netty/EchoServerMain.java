@@ -10,10 +10,20 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 
+import java.util.concurrent.TimeUnit;
+
 public class EchoServerMain {
 
     public static void main(String[] params) throws Exception {
-        new EchoServerMain(1234).run();
+        new Thread(() -> {
+            try {
+                new EchoServerMain(1234).run();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        TimeUnit.SECONDS.sleep(1);
+        new EchoClient("localhost", 1234).connectRunAndExit();
     }
 
     private int port;
@@ -49,9 +59,11 @@ public class EchoServerMain {
                                     ByteBuf in = (ByteBuf) msg;
                                     try {
                                         String data = in.toString(CharsetUtil.UTF_8);
+                                        System.out.println("Server:" + data);
                                         ctx.writeAndFlush(Unpooled.wrappedBuffer(data.getBytes(CharsetUtil.UTF_8)));
                                         if (data.trim().equals("exit")) {
                                             ctx.close();
+                                            System.exit(0);
                                         }
                                     } finally {
                                         ReferenceCountUtil.release(msg);
@@ -68,7 +80,8 @@ public class EchoServerMain {
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
-            ChannelFuture f = b.bind(port).sync(); // (7)
+
+            ChannelFuture f = b.bind(port).sync();
             f.channel().closeFuture().sync();
         } finally {
             childGroup.shutdownGracefully();
