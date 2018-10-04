@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package examples;
+
+option java_package = "examples.netty";
+option java_outer_classname = "MessageProtos";
+
+message Message {
+    required string text = 1;
+}
+
