@@ -4,16 +4,16 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.CharsetUtil;
-import io.netty.util.ReferenceCountUtil;
 
-import java.lang.ref.Reference;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -43,31 +43,34 @@ public class EchoServerMain {
 
         public void connectRunAndExit() throws InterruptedException {
             EventLoopGroup workerGroup = new NioEventLoopGroup();
-
             try {
                 Bootstrap b = new Bootstrap();
                 b.group(workerGroup);
                 b.channel(NioSocketChannel.class);
-                b.option(ChannelOption.SO_KEEPALIVE, true);
-                b.handler(new SimpleClientChannelInitializer());
+                b.handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                        socketChannel.pipeline().addLast(new EchoClientHandler());
+                    }
+                });
 
-                // Start the client.
-                ChannelFuture f = b.connect(ip, port).sync(); // (5)
+                ChannelFuture f = b.connect(ip, port).sync();
 
+                Channel ch = f.channel();
                 System.out.println("scan...");
                 Scanner scanner = new Scanner(System.in);
                 while (scanner.hasNextLine()) {
                     String msg = scanner.nextLine();
-                    System.out.println("prepare to send next message:" + msg);
-                    ByteBuf msgBuffer = Unpooled.wrappedBuffer(scanner.nextLine().getBytes(CharsetUtil.UTF_8));
-                    f.channel().writeAndFlush(msgBuffer);
+                    System.out.println("Input:" + msg);
+                    ByteBuf msgBuffer = Unpooled.wrappedBuffer(msg.getBytes(CharsetUtil.UTF_8));
+                    ch.writeAndFlush(msgBuffer);
                 }
 
 
                 // Wait until the connection is closed.
                 f.channel().closeFuture().sync();
             } finally {
-                workerGroup.shutdownGracefully();
+                workerGroup.shutdownGracefully().sync();
             }
         }
     }
@@ -81,21 +84,24 @@ public class EchoServerMain {
         }
 
         public void run() throws Exception {
-            EventLoopGroup parentGroup = new NioEventLoopGroup();
-            EventLoopGroup childGroup = new NioEventLoopGroup();
+            EventLoopGroup group = new NioEventLoopGroup();
             try {
                 ServerBootstrap b = new ServerBootstrap();
-                b.group(parentGroup, childGroup)
+                b.group(group)
                         .channel(NioServerSocketChannel.class)
-                        .childHandler(new SimpleServerChannelInitializer())
-                        .option(ChannelOption.SO_BACKLOG, 128)
-                        .childOption(ChannelOption.SO_KEEPALIVE, true);
+                        .childHandler(new ChannelInitializer<SocketChannel>() {
+                            @Override
+                            protected void initChannel(SocketChannel socketChannel) throws Exception {
+                                socketChannel.pipeline().addLast(new EchoServerHandler());
+                            }
+                        });
 
                 ChannelFuture f = b.bind(port).sync();
+                System.out.println("bind done");
                 f.channel().closeFuture().sync();
+                System.out.println("close done");
             } finally {
-                childGroup.shutdownGracefully();
-                parentGroup.shutdownGracefully();
+                group.shutdownGracefully().sync();
             }
         }
     }
