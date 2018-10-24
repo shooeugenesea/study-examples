@@ -1,5 +1,7 @@
-package examples.netty;
+package examples.netty.streaming;
 
+import examples.netty.echo.EchoClientHandler;
+import examples.netty.echo.EchoServerHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -17,31 +19,31 @@ import io.netty.util.CharsetUtil;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-public class EchoServerMain {
+public class StreamingServerMain {
 
     public static void main(String[] params) throws Exception {
         new Thread(() -> {
             try {
-                new EchoServer(1234).run();
+                new StreamingServer(1234).run();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
         TimeUnit.SECONDS.sleep(1);
-        new EchoClient("localhost", 1234).connectRunAndExit();
+        new StreamingClient("localhost", 1234).connectRun();
     }
 
-    public static class EchoClient {
+    public static class StreamingClient {
 
         private final String ip;
         private final int port;
 
-        EchoClient(String ip, int port) {
+        StreamingClient(String ip, int port) {
             this.port = port;
             this.ip = ip;
         }
 
-        public void connectRunAndExit() throws InterruptedException {
+        public void connectRun() throws InterruptedException {
             EventLoopGroup workerGroup = new NioEventLoopGroup();
             try {
                 Bootstrap b = new Bootstrap();
@@ -50,7 +52,7 @@ public class EchoServerMain {
                 b.handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline().addLast(new EchoClientHandler());
+                        socketChannel.pipeline().addLast(new StreamingClientHandler());
                     }
                 });
 
@@ -76,10 +78,10 @@ public class EchoServerMain {
     }
 
 
-    public static class EchoServer {
+    public static class StreamingServer {
         private int port;
 
-        public EchoServer(int port) {
+        public StreamingServer(int port) {
             this.port = port;
         }
 
@@ -92,7 +94,7 @@ public class EchoServerMain {
                         .childHandler(new ChannelInitializer<SocketChannel>() {
                             @Override
                             protected void initChannel(SocketChannel socketChannel) throws Exception {
-                                socketChannel.pipeline().addLast(new EchoServerHandler());
+                                socketChannel.pipeline().addLast(new StreamingServerHandler());
                             }
                         });
 
