@@ -7,6 +7,7 @@ import org.springframework.messaging.Message;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.LongStream;
 
@@ -39,7 +40,10 @@ public class QueueChannelMain {
         @Override
         public void run() {
             while (l.getCount() != 0) {
-                Message m = channel.receive();
+                Message m = channel.receive(TimeUnit.SECONDS.toMillis(1));
+                if (m == null) {
+                    continue;
+                }
                 Object pl = m.getPayload();
                 receiveMsgCount.putIfAbsent(pl, new AtomicInteger());
                 receiveMsgCount.get(pl).incrementAndGet();
