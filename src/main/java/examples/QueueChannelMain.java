@@ -38,12 +38,12 @@ public class QueueChannelMain {
 
         @Override
         public void run() {
-            while (true) {
+            while (l.getCount() != 0) {
                 Message m = channel.receive();
                 Object pl = m.getPayload();
                 receiveMsgCount.putIfAbsent(pl, new AtomicInteger());
                 receiveMsgCount.get(pl).incrementAndGet();
-                System.out.println(Thread.currentThread().getName() + " got message: " + pl);
+                System.out.println(Thread.currentThread().getName() + " got message: " + pl + ", count:" + l);
                 l.countDown();
             }
         }
