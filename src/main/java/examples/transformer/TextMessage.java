@@ -19,6 +19,6 @@ public class TextMessage implements Serializable {
 
     @Override
     public String toString() {
-        return localId + ":" + text;
+        return getClass() + "->" + localId + ":" + text;
     }
 }

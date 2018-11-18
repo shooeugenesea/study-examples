@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:jms="http://www.springframework.org/schema/integration/jms"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration-5.0.xsd
+        http://www.springframework.org/schema/integration/jms
+        http://www.springframework.org/schema/integration/jms/spring-integration-jms-5.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    <context:component-scan base-package="examples"/>
+
+    <bean id="cachingConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <constructor-arg value="vm://localhost" />
+    </bean>
+
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <constructor-arg ref="cachingConnectionFactory" />
+        <property name="defaultDestinationName" value="transformation.example.queue" />
+    </bean>
+
+    <jms:message-driven-channel-adapter
+            channel="map"
+            connection-factory="cachingConnectionFactory"
+            destination-name="transformation.example.queue"/>
+
+    <int:map-to-object-transformer input-channel="map" output-channel="output"
+                                   type="examples.transformer.TextMessageEmptyConstructor" />
+
+    <int:channel id="map" />
+    <int:channel id="output">
+        <int:queue capacity="10"/>
+    </int:channel>
+</beans>

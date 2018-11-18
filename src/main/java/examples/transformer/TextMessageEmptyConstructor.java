@@ -19,6 +19,6 @@ public class TextMessageEmptyConstructor {
 
     @Override
     public String toString() {
-        return text;
+        return getClass().getSimpleName() + "=>" + text;
     }
 }
