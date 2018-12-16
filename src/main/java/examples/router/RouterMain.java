@@ -1,5 +1,6 @@
 package examples.router;
 
+import examples.MyMessage;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;

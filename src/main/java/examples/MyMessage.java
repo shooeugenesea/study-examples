@@ -1,4 +1,4 @@
-package examples.router;
+package examples;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

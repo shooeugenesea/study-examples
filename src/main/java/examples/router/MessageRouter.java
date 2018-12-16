@@ -1,5 +1,6 @@
 package examples.router;
 
+import examples.MyMessage;
 import org.springframework.integration.annotation.Router;
 import org.springframework.stereotype.Component;
 
