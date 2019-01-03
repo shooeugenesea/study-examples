@@ -52,15 +52,14 @@ public class PreprovisionApTest {
 
         startReport();
         login(httpclient, httpContext);
-        IntStream.range(0, 100).forEach(idx -> {
+        IntStream.range(0, 4000).forEach(idx -> {
             try {
-                //String domainId = createDomain(httpclient, httpContext);
-                //String zoneId = createZone(domainId, httpclient, httpContext);
+                String domainId = createDomain(httpclient, httpContext);
+                String zoneId = createZone(domainId, httpclient, httpContext);
                 for ( int i = 0; i < 5; i++ ) {
-                  //  createWlan(zoneId, httpclient, httpContext);
+                    createWlan(zoneId, httpclient, httpContext);
                 }
-                //preprovisionAp(zoneId, httpclient, httpContext);
-                preprovisionAp("93093f40-6db5-406a-81fe-9d927cb84c8c", httpclient, httpContext);
+                preprovisionAPs(1, zoneId, httpclient, httpContext);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -69,6 +68,12 @@ public class PreprovisionApTest {
         httpclient.close();
         System.out.println("DONE");
         TimeUnit.MINUTES.sleep(5);
+    }
+
+    private static void preprovisionAPs(int apCount, String zoneId, CloseableHttpClient httpclient, HttpContext httpContext) throws IOException, InterruptedException {
+        for ( int i = 0; i < apCount; i++ ) {
+            preprovisionAp(zoneId, httpclient, httpContext);
+        }
     }
 
     static void startReport() {
