@@ -8,9 +8,9 @@ import java.io.IOException;
 /**
  * @author <a href="https://github.com/shooeugenesea">isaac</a>
  */
-public class CreateIndex {// extends ElasticsearchTestSupport {
+public class CreateIndexTest extends ElasticsearchTestSupport {
 
-    public CreateIndex() throws IOException {
+    public CreateIndexTest() throws IOException {
         super();
     }
 

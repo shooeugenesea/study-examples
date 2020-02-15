@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.Socket;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -11,8 +12,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import examples.OS;
 import examples.windows.NetStat;
 import examples.windows.TaskKill;
+import org.junit.Assert;
 
 public class Elasticsearch {
 
@@ -33,9 +36,19 @@ public class Elasticsearch {
         return executor.submit(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
+                String osname = System.getProperty("os.name").toLowerCase();
                 while (true) {
-                    if (NetStat.port(LISTEN_PORT) != null) {
-                        break;
+                    if (osname.contains("linux")) {
+                        try (Socket s = new Socket("127.0.0.1", LISTEN_PORT)) {
+                            System.out.println("elasticsearch is started");
+                            break;
+                        } catch (Throwable ex) {
+                            System.out.println(ex);
+                        }
+                    } else {
+                        if (NetStat.port(LISTEN_PORT) != null) {
+                            break;
+                        }
                     }
                     TimeUnit.SECONDS.sleep(1);
                 }
@@ -49,19 +62,24 @@ public class Elasticsearch {
         if (process != null) {
             process.destroy();
         }
-        NetStat netstat = NetStat.port(LISTEN_PORT);
-        if (netstat != null) {
-            TaskKill.pid(netstat.getPid());
+        if (!OS.isLinux()) {
+            NetStat netstat = NetStat.port(LISTEN_PORT);
+            if (netstat != null) {
+                TaskKill.pid(netstat.getPid());
+            }
         }
+
         return executor.submit(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                while (true) {
-                    if (NetStat.port(LISTEN_PORT) == null) {
-                        break;
+                if (!OS.isLinux()) {
+                    while (true) {
+                        if (NetStat.port(LISTEN_PORT) == null) {
+                            break;
+                        }
+                        TimeUnit.SECONDS.sleep(1);
                     }
-                    TimeUnit.SECONDS.sleep(1);
                 }
                 return null;
             }

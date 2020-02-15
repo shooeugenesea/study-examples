@@ -30,7 +30,13 @@ public class ElasticsearchTestSupport {
         }
         
         copy(srcDir, targetDir);
-        this.elasticsearch = new Elasticsearch(targetDir.resolve("bin/elasticsearch.bat"));
+        String osname = System.getProperty("os.name").toLowerCase();
+        if (osname.contains("linux")) {
+            Runtime.getRuntime().exec("chmod +x " + targetDir.resolve("bin/elasticsearch"));
+            this.elasticsearch = new Elasticsearch(targetDir.resolve("bin/elasticsearch"));
+        } else {
+            this.elasticsearch = new Elasticsearch(targetDir.resolve("bin/elasticsearch.bat"));
+        }
     }
     
     @Before
