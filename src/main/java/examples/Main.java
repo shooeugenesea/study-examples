@@ -12,10 +12,13 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.IntStream;
 
 public class Main {
 
     private static final ExecutorService e = Executors.newCachedThreadPool();
+    private static final int sendCnt = 1000;
+    private static final CountDownLatch receiveCnt = new CountDownLatch(sendCnt);
 
     public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
         String topic = "mytopic";
@@ -23,6 +26,9 @@ public class Main {
         createTopicIfNotExist(kafkaProps, topic);
         keepSendingMessage(kafkaProps, topic);
         keepConsumingMessage(kafkaProps, topic);
+        receiveCnt.await();
+        System.out.println("shutdown");
+        e.shutdownNow();
     }
 
     private static void keepConsumingMessage(Properties kafkaProps, String topic) {
@@ -33,7 +39,8 @@ public class Main {
                 while (true) {
                     records = consumer.poll(Duration.ofSeconds(10));
                     if (records.count() > 0) {
-                        System.out.println("receive:" + toString(records));
+                        IntStream.range(0, records.count()).forEach(i -> receiveCnt.countDown());
+                        System.out.println("receive:" + records.count() + " messages");
                     }
                 }
             } catch (Throwable ex) {
@@ -45,7 +52,7 @@ public class Main {
     private static void keepSendingMessage(Properties kafkaProps, String topic) {
         e.execute(() -> {
             int count = 0;
-            while (count++ < 10000) {
+            while (count++ < sendCnt) {
                 try (KafkaProducer<String, String> producer = new KafkaProducer<String, String>(kafkaProps)) {
                     ProducerRecord<String, String> record = new ProducerRecord<>(topic, "mykey", "myval" + count);
                     System.out.println("offset:" + producer.send(record).get(10, TimeUnit.SECONDS).offset());
@@ -55,42 +62,6 @@ public class Main {
             }
         });
     }
-
-
-    public static void main2(String[] args) throws InterruptedException, ExecutionException, TimeoutException {
-        String topic = "mytopic";
-        Properties kafkaProps = kafkaProps("localhost:9092");
-        createTopicIfNotExist(kafkaProps, topic);
-
-        try (KafkaProducer<String, String> producer = new KafkaProducer<String, String>(kafkaProps);
-             KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(kafkaProps);
-        ) {
-            consumer.subscribe(Arrays.asList(topic));
-            ProducerRecord<String, String> record = new ProducerRecord<>("mytopic", "mykey", "myval");
-            System.out.println("offset:" + producer.send(record).get(10, TimeUnit.SECONDS).offset());
-            int retry = 0;
-            ConsumerRecords<String, String> records = null;
-            while (retry++ < 10) {
-                records = consumer.poll(Duration.ofSeconds(10));
-                if (records.count() > 0) {
-                    break;
-                }
-            }
-            System.out.println("receive:" + toString(records));
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private static String toString(ConsumerRecords<String, String> records) {
-        System.out.println("count:" + records.count());
-        StringBuilder sb = new StringBuilder();
-        for (ConsumerRecord<String, String> record : records) {
-            sb.append(record.toString());
-        }
-        return sb.toString();
-    }
-
 
     private static Properties kafkaProps(String url) {
         Properties properties = new Properties();
